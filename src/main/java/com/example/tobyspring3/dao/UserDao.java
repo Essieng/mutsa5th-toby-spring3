@@ -9,13 +9,15 @@ import static java.lang.System.getenv;
 
 public abstract class UserDao {
 
-    public abstract Connection getConnection() throws ClassNotFoundException, SQLException;
+    ConnectionMaker connectionMaker;
 
-    SimpleConnectionMaker connectionMaker = new SimpleConnectionMaker();
+    public UserDao() {
+        connectionMaker = new DConnectionMaker();
+    }
 
     public void add(User user) throws ClassNotFoundException, SQLException {
 
-        Connection conn = connectionMaker.makeNewConnection();
+        Connection conn = connectionMaker.makeConnection();
 
         PreparedStatement pstmt = conn.prepareStatement(
                 "insert into users(id, name, password) values(?, ?, ?)"
@@ -31,7 +33,7 @@ public abstract class UserDao {
     }
 
     public User get(String id) throws SQLException, ClassNotFoundException {
-        Connection conn = connectionMaker.makeNewConnection();
+        Connection conn = connectionMaker.makeConnection();
 
         PreparedStatement pstmt = conn.prepareStatement("select id, name, password from users where id = ?");
         pstmt.setString(1, id);
