@@ -11,29 +11,11 @@ public abstract class UserDao {
 
     public abstract Connection getConnection() throws ClassNotFoundException, SQLException;
 
-//    {
-//        Map<String, String> env = getenv();
-//        String dbHost = env.get("DB_HOST"); //DB_HOST=jdbc:mysql://localhost:3306/spring-db
-//        String dbUser = env.get("DB_USER");
-//        String dbPassword = env.get("DB_PASSWORD");
-//
-//        Class.forName("com.mysql.cj.jdbc.Driver");
-//        Connection conn = DriverManager.getConnection(
-//                dbHost, dbUser, dbPassword
-//        );
-//        return conn;
-//    }
+    SimpleConnectionMaker connectionMaker = new SimpleConnectionMaker();
 
     public void add(User user) throws ClassNotFoundException, SQLException {
-        Map<String, String> env = getenv();
-        String dbHost = env.get("DB_HOST");
-        String dbUser = env.get("DB_USER");
-        String dbPassword = env.get("DB_PASSWORD");
 
-        Class.forName("com.mysql.cj.jdbc.Driver");
-        Connection conn = DriverManager.getConnection(
-                dbHost, dbUser, dbPassword
-        );
+        Connection conn = connectionMaker.makeNewConnection();
 
         PreparedStatement pstmt = conn.prepareStatement(
                 "insert into users(id, name, password) values(?, ?, ?)"
@@ -49,7 +31,7 @@ public abstract class UserDao {
     }
 
     public User get(String id) throws SQLException, ClassNotFoundException {
-        Connection conn = getConnection();
+        Connection conn = connectionMaker.makeNewConnection();
 
         PreparedStatement pstmt = conn.prepareStatement("select id, name, password from users where id = ?");
         pstmt.setString(1, id);
